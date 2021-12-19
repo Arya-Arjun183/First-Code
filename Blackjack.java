@@ -1,17 +1,13 @@
 import java.util.Scanner;
 import java.util.Vector;
 
-/* Simulation of console-I/O program Blackjack,
-using ConsoleApplet as a basis.  See the file
-ConsoleApplet.java for more information.
 
-*/
 public class Blackjack {
 
     private static Scanner scanner = new Scanner(System.in);
-    private int[] deck;   // An array of 52 Cards, representing the deck.
-    private int currentPosition; // Current position in the deck
-    private Vector hand;   // The cards in the hand.
+    private int[] cardDeck;
+    private int curPos;
+    private Vector hand;
 
     public static void main(String[] args)
     {
@@ -21,53 +17,36 @@ public class Blackjack {
     public void run()
     {
 
-        /*
-        This program lets the user play Blackjack.  The computer
-        acts as the dealer.  The user has a stake of $100, and
-        makes a bet on each game.  The user can leave at any time,
-        or will be kicked out when he loses all the money.
-        House rules:  The dealer hits on a total of 16 or less
-        and stands on a total of 17 or more.  Dealer wins ties.
-        A new deck of cards is used for each game.
-         */
 
-        int money;          // Amount of money the user has.
-        int bet;            // Amount user bets on a game.
-        boolean userWins;   // Did the user win the game?
 
+        int bet;
         System.out.println("Welcome to the game of blackjack.");
         System.out.println();
 
-        money = 100;  // User starts with $100.
+        int money = 100;
 
-        while (true)
-        {
+        while (true) {
             System.out.println("You have " + money + " dollars.");
             do
             {
                 System.out.println("How many dollars do you want to bet?  (Enter 0 to end.)");
                 System.out.print("? ");
                 bet = scanner.nextInt();
-                if (bet < 0 || bet > money)
-                {
+                if (bet < 0 || bet > money) {
                     System.out.println("Your answer must be between 0 and " + money + '.');
                 }
             } while (bet < 0 || bet > money);
-            if (bet == 0)
-            {
+            if (bet == 0) {
                 break;
             }
-            userWins = playBlackjack();
-            if (userWins)
-            {
+            boolean userWins = playBlackjack();
+            if (userWins) {
                 money = money + bet;
-            } else
-            {
+            } else {
                 money = money - bet;
             }
             System.out.println();
-            if (money == 0)
-            {
+            if (money == 0) {
                 System.out.println("Looks like you've are out of money!");
                 break;
             }
@@ -76,35 +55,27 @@ public class Blackjack {
         System.out.println();
         System.out.println("You leave with $" + money + '.');
 
-    } // end main()
+    }
 
-    private boolean playBlackjack()
-    {
-        // Let the user play one game of Blackjack.
-        // Return true if the user wins, false if the user loses.
+    private boolean playBlackjack() {
 
-        Vector dealerHand;   // The dealer's hand.
-        Vector userHand;     // The user's hand.
 
-        // Create an unshuffled deck of cards.
-        deck = new int[52];
-        int cardCt = 0; // How many cards have been created so far.
-        for (int suit = 0; suit <= 3; suit++)
-        {
-            for (int value = 1; value <= 13; value++)
-            {
-                deck[cardCt] = value;
-                cardCt++;
+        Vector dealerHand;
+        Vector userHand;
+
+        cardDeck = new int[52];
+        int cardCountt = 0;
+        for (int suit = 0; suit <= 3; suit++) {
+            for (int value = 1; value <= 13; value++) {
+                cardDeck[cardCountt] = value;
+                cardCountt++;
             }
         }
-        currentPosition = 0;
+        curPos = 0;
 
         dealerHand = new Vector();
         userHand = new Vector();
-
-        /*  Shuffle the deck, then deal two cards to each player. */
-
-        shuffle();
+        cardShuffle();
 
         dealerHand.addElement(dealCard());
         dealerHand.addElement(dealCard());
@@ -114,12 +85,9 @@ public class Blackjack {
         System.out.println();
         System.out.println();
 
-        /* Check if one of the players has Blackjack (two cards totaling to 21).
-        The player with Blackjack wins the game.  Dealer wins ties.
-         */
 
-        if (value(dealerHand) == 21)
-        {
+
+        if (value(dealerHand) == 21) {
             System.out.println("Dealer has the " + showCard(getCard(dealerHand, 0)) + " and the " + showCard(getCard(dealerHand, 1)) + ".");
             System.out.println("User has the " + showCard(getCard(userHand, 0)) + " and the " + showCard(getCard(userHand, 1)) + ".");
             System.out.println();
@@ -127,24 +95,15 @@ public class Blackjack {
             return false;
         }
 
-        if (value(userHand) == 21)
-        {
+        if (value(userHand) == 21) {
             System.out.println("Dealer has the " + showCard(getCard(dealerHand, 0)) + " and the " + showCard(getCard(dealerHand, 1)) + ".");
             System.out.println("User has the " + showCard(getCard(userHand, 0)) + " and the " + showCard(getCard(userHand, 1)) + ".");
             System.out.println();
             System.out.println("You have Blackjack.  You win.");
             return true;
         }
+        while (true) {
 
-        /*  If neither player has Blackjack, play the game.  The user gets a chance
-        to draw cards (i.e., to "Hit").  The while loop ends when the user
-        chooses to "Stand" or when the user goes over 21.
-         */
-
-        while (true)
-        {
-
-            /* Display user's cards, and let user decide to Hit or Stand. */
 
             System.out.println();
             System.out.println();
@@ -158,7 +117,7 @@ public class Blackjack {
             System.out.println("Dealer is showing the " + showCard(getCard(dealerHand, 0)));
             System.out.println();
             System.out.print("Hit (H) or Stand (S)? ");
-            char userAction;  // User's response, 'H' or 'S'.
+            char userAction;
             do
             {
                 userAction = Character.toUpperCase(scanner.next().charAt(0));
@@ -168,25 +127,17 @@ public class Blackjack {
                 }
             } while (userAction != 'H' && userAction != 'S');
 
-            /* If the user Hits, the user gets a card.  If the user Stands, the
-            dealer gets a chance to draw and the game ends.
-             */
 
-            if (userAction == 'S')
-            {
-                // Loop ends; user is done taking cards.
+            if (userAction == 'S') {
                 break;
-            } else
-            {  // userAction is 'H'.
-                // Give the user a card.  If the user goes over 21, the user loses.
+            } else {
                 int newCard = dealCard();
                 userHand.addElement(newCard);
                 System.out.println();
                 System.out.println("User hits.");
                 System.out.println("Your card is the " + showCard(newCard));
                 System.out.println("Your total is now " + value(userHand));
-                if (value(userHand) > 21)
-                {
+                if (value(userHand) > 21) {
                     System.out.println();
                     System.out.println("You busted by going over 21.  You lose.");
                     System.out.println("Dealer's other card was the " + showCard(getCard(dealerHand, 1)));
@@ -194,46 +145,34 @@ public class Blackjack {
                 }
             }
 
-        } // end while loop
-
-        /* If we get to this point, the user has Stood with 21 or less.  Now, it's
-        the dealer's chance to draw.  Dealer draws cards until the dealer's total is > 16.
-         */
+        }
 
         System.out.println();
         System.out.println("User stands.");
         System.out.println("Dealer's cards are");
         System.out.println("    " + showCard(getCard(dealerHand, 0)));
         System.out.println("    " + showCard(getCard(dealerHand, 1)));
-        while (value(dealerHand) <= 16)
-        {
+        while (value(dealerHand) <= 16) {
             int newCard = dealCard();
             System.out.println("Dealer hits and gets the " + showCard(newCard));
             dealerHand.addElement(newCard);
         }
         System.out.println("Dealer's total is " + value(dealerHand));
 
-        /* Now, the winner can be declared. */
 
         System.out.println();
-        if (value(dealerHand) > 21)
-        {
+        if (value(dealerHand) > 21) {
             System.out.println("Dealer busted by going over 21.  You win.");
             return true;
-        } else
-        {
-            if (value(dealerHand) == value(userHand))
-            {
+        } else {
+            if (value(dealerHand) == value(userHand)) {
                 System.out.println("Dealer wins on a tie.  You lose.");
                 return false;
-            } else
-            {
-                if (value(dealerHand) > value(userHand))
-                {
+            } else {
+                if (value(dealerHand) > value(userHand)) {
                     System.out.println("Dealer wins, " + value(dealerHand) + " points to " + value(userHand) + ".");
                     return false;
-                } else
-                {
+                } else {
                     System.out.println("You win, " + value(userHand) + " points to " + value(dealerHand) + ".");
                     return true;
                 }
@@ -242,93 +181,65 @@ public class Blackjack {
 
     }  // end playBlackjack()
 
-    public int dealCard()
-    {
-        // Deals one card from the deck and returns it.
-        if (currentPosition == 52)
-        {
-            shuffle();
+    public int dealCard() {
+        if (curPos == 52) {
+            cardShuffle();
         }
-        currentPosition++;
-        return deck[currentPosition - 1];
+        curPos++;
+        return cardDeck[curPos - 1];
     }
 
-    public void shuffle()
-    {
-        // Put all the used cards back into the deck, and shuffle it into
-        // a random order.
-        for (int i = 51; i > 0; i--)
-        {
+    public void cardShuffle() {
+
+        for (int i = 51; i > 0; i--) {
             int rand = (int) (Math.random() * (i + 1));
-            int temp = deck[i];
-            deck[i] = deck[rand];
-            deck[rand] = temp;
+            int temp = cardDeck[i];
+            cardDeck[i] = cardDeck[rand];
+            cardDeck[rand] = temp;
         }
-        currentPosition = 0;
+        curPos = 0;
     }
 
-    public int getCard(Vector hand, int position)
-    {
-        // Get the card from the hand in given position, where positions
-        // are numbered starting from 0.  If the specified position is
-        // not the position number of a card in the hand, then null
-        // is returned.
-        if (position >= 0 && position < hand.size())
-        {
+    public int getCard(Vector hand, int position) {
+
+        if (position >= 0 && position < hand.size()) {
             return ((Integer)hand.elementAt(position)).intValue();
-        } else
-        {
+        } else {
             return 0;
         }
     }
 
     public int value(Vector hand)
     {
-        // Returns the value of this hand for the
-        // game of Blackjack.
 
-        int val;      // The value computed for the hand.
-        boolean ace;  // This will be set to true if the
-        //   hand contains an ace.
-        int cards;    // Number of cards in the hand.
 
-        val = 0;
-        ace = false;
-        cards = hand.size();
+        int val = 0;
+        boolean ace = false;
+        int cards = hand.size();
 
-        for (int i = 0; i < cards; i++)
-        {
-            // Add the value of the i-th card in the hand.
-            int card;    // The i-th card;
-            int cardVal;  // The blackjack value of the i-th card.
-            card = getCard(hand, i);
-            cardVal = getCardValue(card);  // The normal value, 1 to 13.
-            if (cardVal > 10)
-            {
-                cardVal = 10;   // For a Jack, Queen, or King.
+        for (int i = 0; i < cards; i++) {
+
+            int card = getCard(hand, i);
+            int cardVal = getCardValue(card);
+            if (cardVal > 10) {
+                cardVal = 10;
             }
-            if (cardVal == 1)
-            {
-                ace = true;     // There is at least one ace.
+            if (cardVal == 1) {
+                ace = true;
             }
             val = val + cardVal;
         }
 
-        // Now, val is the value of the hand, counting any ace as 1.
-        // If there is an ace, and if changing its value from 1 to
-        // 11 would leave the score less than or equal to 21,
-        // then do so by adding the extra 10 points to val.
 
-        if (ace == true && val + 10 <= 21)
-        {
+
+        if (ace == true && val + 10 <= 21) {
             val = val + 10;
         }
 
         return val;
 
     }
-    public int getCardValue(int card)
-    {
+    public int getCardValue(int card) {
         int result = card;
         switch (card)
         {
@@ -339,8 +250,7 @@ public class Blackjack {
         }
         return result;
     }
-    public String showCard(int card)
-    {
+    public String showCard(int card) {
         switch (card)
         {
             case 1:
